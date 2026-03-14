@@ -28,10 +28,10 @@ export default function SeatMap({ eventId }: SeatMapProps) {
   const [isReserving, setIsReserving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Real API fetch using Render backend
+  // Real API fetch using Render backend or local NGINX gateway
   useEffect(() => {
     async function fetchTickets() {
-      const API_URL = "https://ticket-booking-fnw9.onrender.com";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
       try {
         const res = await fetch(`${API_URL}/tickets/event/${eventId}`);
         if (res.ok) {
@@ -73,7 +73,7 @@ export default function SeatMap({ eventId }: SeatMapProps) {
     setError(null);
 
     try {
-      const API_URL = "https://ticket-booking-fnw9.onrender.com";
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
       const res = await fetch(`${API_URL}/tickets/reserve/${selectedSeat.ticket_id}?user_id=demo_user_123`, {
         method: 'PUT'
       });

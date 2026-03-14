@@ -16,7 +16,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const API_URL = "https://ticket-booking-fnw9.onrender.com";
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
         const res = await fetch(`${API_URL}/tickets/dashboard/stats`);
         if (res.ok) {
           const data = await res.json();
