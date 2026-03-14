@@ -29,13 +29,24 @@ export default function BookingPage({ params }: { params: { ticketId: string } }
     return () => clearInterval(timer);
   }, [timeLeft, isConfirmed, router]);
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     setIsProcessing(true);
-    // Simulate backend payment and confirmation
-    setTimeout(() => {
+    try {
+      const API_URL = "https://ticket-booking-fnw9.onrender.com";
+      const res = await fetch(`${API_URL}/tickets/confirm/${params.ticketId}`, {
+        method: 'PUT'
+      });
+      if(res.ok) {
+        setIsProcessing(false);
+        setIsConfirmed(true);
+      } else {
+        alert("Booking failed or expired");
+        setIsProcessing(false);
+      }
+    } catch(err) {
+      alert("Network error");
       setIsProcessing(false);
-      setIsConfirmed(true);
-    }, 2000);
+    }
   };
 
   const minutes = Math.floor(timeLeft / 60);

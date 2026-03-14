@@ -12,20 +12,29 @@ export default function AdminDashboard() {
     booked: 630
   });
 
-  // Mocking real-time updates
+  // Real API fetching for stats
   useEffect(() => {
-    const interval = setInterval(() => {
-      setStats(prev => {
-        // Randomly simulate conversions from pending to booked or cancelled->available
-        const randomAction = Math.random();
-        if (randomAction > 0.6 && prev.pending > 0) {
-          return { ...prev, pending: prev.pending - 1, booked: prev.booked + 1 };
-        } else if (randomAction < 0.2 && prev.pending > 0) {
-          return { ...prev, pending: prev.pending - 1, available: prev.available + 1 };
+    async function fetchStats() {
+      try {
+        const API_URL = "https://ticket-booking-fnw9.onrender.com";
+        const res = await fetch(`${API_URL}/tickets/dashboard/stats`);
+        if (res.ok) {
+          const data = await res.json();
+          setStats({
+            totalTickets: (data.AVAILABLE || 0) + (data.PENDING || 0) + (data.BOOKED || 0) + (data.CANCELLED || 0),
+            available: data.AVAILABLE || 0,
+            pending: data.PENDING || 0,
+            booked: data.BOOKED || 0
+          });
         }
-        return prev;
-      });
-    }, 5000);
+      } catch (err) {
+        console.error("Failed to fetch stats", err);
+      }
+    }
+    fetchStats();
+    
+    // Auto refresh every 5s
+    const interval = setInterval(fetchStats, 5000);
     return () => clearInterval(interval);
   }, []);
 

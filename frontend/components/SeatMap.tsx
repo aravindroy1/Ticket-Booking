@@ -28,36 +28,36 @@ export default function SeatMap({ eventId }: SeatMapProps) {
   const [isReserving, setIsReserving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Simulated API fetch for frontend demo (since backend might not be running)
+  // Real API fetch using Render backend
   useEffect(() => {
-    // We mock the backend data for the requested visualization
-    const mockTickets: TicketData[] = [];
-    const rows = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
-    
-    // Create realistic mock data
-    for (let i = 0; i < 100; i++) {
-      const row = rows[Math.floor(i / 10)];
-      const col = (i % 10) + 1;
-      let status: TicketStatus = 'AVAILABLE';
-      
-      // Randomly assign some booked/pending seats
-      const rand = Math.random();
-      if (rand > 0.85) status = 'BOOKED';
-      else if (rand > 0.75) status = 'PENDING';
-
-      mockTickets.push({
-        ticket_id: `tkt_${i}`,
-        event_id: eventId,
-        seat_number: `${row}${col}`,
-        price: row === 'A' || row === 'B' ? 150 : 80,
-        status: status,
-      });
+    async function fetchTickets() {
+      const API_URL = "https://ticket-booking-fnw9.onrender.com";
+      try {
+        const res = await fetch(`${API_URL}/tickets/event/${eventId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.length === 0) {
+            // Auto-generate tickets for this demo if none exist
+            await fetch(`${API_URL}/tickets/generate?event_id=${eventId}&num_seats=100&base_price=80`, { method: 'POST' });
+            const res2 = await fetch(`${API_URL}/tickets/event/${eventId}`);
+            if (res2.ok) {
+              setTickets(await res2.json());
+            }
+          } else {
+            setTickets(data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch tickets", err);
+      } finally {
+        setLoading(false);
+      }
     }
+    fetchTickets();
     
-    setTimeout(() => {
-      setTickets(mockTickets);
-      setLoading(false);
-    }, 800);
+    // Auto-refresh every 5 seconds to show locked/unlocked seats live
+    const interval = setInterval(fetchTickets, 5000);
+    return () => clearInterval(interval);
   }, [eventId]);
 
   const handleSeatClick = (ticket: TicketData) => {
@@ -72,11 +72,23 @@ export default function SeatMap({ eventId }: SeatMapProps) {
     setIsReserving(true);
     setError(null);
 
-    // Simulate Reserve API Call
-    setTimeout(() => {
-      // Transition to booking page immediately, as it simulates the 5m lock
-      router.push(`/booking/${selectedSeat.ticket_id}`);
-    }, 1200);
+    try {
+      const API_URL = "https://ticket-booking-fnw9.onrender.com";
+      const res = await fetch(`${API_URL}/tickets/reserve/${selectedSeat.ticket_id}?user_id=demo_user_123`, {
+        method: 'PUT'
+      });
+      
+      if (res.ok) {
+        router.push(`/booking/${selectedSeat.ticket_id}`);
+      } else {
+        const errorData = await res.json();
+        setError(errorData.detail || "Seat is no longer available");
+        setIsReserving(false);
+      }
+    } catch (err) {
+      setError("Failed to communicate with server");
+      setIsReserving(false);
+    }
   };
 
   if (loading) {
