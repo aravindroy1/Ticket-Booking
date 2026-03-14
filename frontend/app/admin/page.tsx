@@ -57,7 +57,12 @@ export default function AdminDashboard() {
         
         <div className="flex gap-4">
           <button className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-300 hover:bg-white/10 transition">Export CSV</button>
-          <button className="px-4 py-2 bg-brand-600 hover:bg-brand-500 rounded-lg text-sm text-white font-medium transition shadow-lg shadow-brand-500/20">Generate Event Tickets</button>
+          <button onClick={async () => {
+              const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+              await fetch(`${API_URL}/tickets/generate?event_id=evt_001&num_seats=100&base_price=50`, { method: 'POST' });
+              await fetch(`${API_URL}/tickets/generate?event_id=evt_002&num_seats=100&base_price=50`, { method: 'POST' });
+              alert("Generated 100 new tickets for both events!");
+          }} className="px-4 py-2 bg-brand-600 hover:bg-brand-500 rounded-lg text-sm text-white font-medium transition shadow-lg shadow-brand-500/20">Generate Event Tickets</button>
         </div>
       </div>
 
