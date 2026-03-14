@@ -1,15 +1,11 @@
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from pydantic import BaseModel, Field, ConfigDict
+from pydantic.functional_validators import BeforeValidator
+from typing import Optional, List, Annotated
 from datetime import datetime
 
-class PyObjectId(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
-
-    @classmethod
-    def validate(cls, v):
-        return str(v)
+# Represents an ObjectId field in the database.
+# It will be represented as a `str` on the model so that it can be serialized to JSON.
+PyObjectId = Annotated[str, BeforeValidator(str)]
 
 class TicketModel(BaseModel):
     id: Optional[PyObjectId] = Field(default_none=True, alias="_id")
@@ -27,7 +23,7 @@ class TicketModel(BaseModel):
         json_encoders = {datetime: lambda v: v.isoformat()}
 
 class EventModel(BaseModel):
-    id: Optional[PyObjectId] = Field(default_none=True, alias="_id")
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
     event_id: str
     name: str
     date: datetime
