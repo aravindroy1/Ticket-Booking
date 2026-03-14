@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Users, Ticket, ChevronRight } from 'lucide-react';
-import SeatMap from './components/SeatMap';
+import SeatMap from '../components/SeatMap';
 
 // Sample events data
 const EVENTS = [
