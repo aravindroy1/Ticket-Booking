@@ -112,13 +112,13 @@ export default function SeatMap({ eventId }: SeatMapProps) {
       {/* Seat Map Visualizer */}
       <div className="flex-1 glass-panel rounded-3xl p-8 relative overflow-hidden shadow-2xl w-full">
         {/* Stage Curved Div */}
-        <div className="w-full flex justify-center mb-12 relative">
+        <div className="w-full flex justify-center mb-12 relative pointer-events-none select-none">
            <div className="absolute w-3/4 h-24 border-t-4 border-brand-500 rounded-[100%] blur-[1px]"></div>
            <div className="absolute w-3/4 h-32 bg-brand-500/10 rounded-[100%] blur-xl -top-10"></div>
            <p className="text-brand-100 font-bold uppercase tracking-[0.5em] text-sm pt-4 z-10">STAGE</p>
         </div>
 
-        <div className="flex flex-col gap-3 items-center w-full overflow-x-auto pb-4">
+        <div className="flex flex-col gap-3 items-center w-full overflow-x-auto pb-4 select-none">
           {rows.map((row) => (
             <div key={row} className="flex gap-2 lg:gap-3 items-center w-max">
               <span className="w-6 text-center text-gray-500 font-bold text-sm mr-2">{row}</span>
